@@ -1,16 +1,18 @@
 # importing google photos shared albums (with ur friend's photos) into immich
 
-I'm finally doing it - I'm decoupling from Google Photos, and migrating over to a self-hosted [Immich](https://immich.app/) instance.
+In 2026, I decided it was high time to move off Google Photos, and migrate over to a self-hosted [Immich](https://immich.app/) instance.
 
-The traditional Google Takeout + [`immich-go`](https://github.com/simulot/immich-go) works great, but suffers from a pretty serious flaw: Google Takeout does _not_ include any photos your friends have shared with you!
+The "traditional" way to do this is to kick off a [Google Takeout](https://takeout.google.com/) request + import the resulting data via [`immich-go`](https://github.com/simulot/immich-go). This works great, with one big "but": Google Takeout does _not_ include any photos your friends have shared with you!
 
-When you try to manually plug this gap by downloading each shared album from Google Photos and importing those zips into Immich, you quickly find that:
+Ok, fine, whatever. So then, I went and tried to manually plug this gap by downloading each shared album from Google Photos and importing the resulting zips into Immich. Again, this "works", but with quite a few caveats:
 
-1. Lots of the date/time data gets mangled / is incorrect for whatever reason (e.g: timezones are set to UTC)
+1. The date/time data for shared photos is all mangled / incorrect for whatever reason (e.g: timezones are set to UTC??)
 2. You lose all context on which of your friends uploaded which photos (sad!)
 3. When those zipped manual download archives are then uploaded via `immich-go` (via the `from-folder` import mode), live photos aren't properly joined.
 
-This _sucks_. And honestly - shame on Google for making it so damn hard to migrate off their platform.
+The end result is an album that's "imported", but not particularly pleasant to interact with.
+
+Honestly, this _sucks_. Shame on Google for making it so damn hard to migrate off their platform.
 
 "Oh, it's so easy to move off Google Photos! Just use Google Takeout!" Yeah, ok guys... like the average user is gonna be thrilled to have all their shared photo albums that they collaborated with their friends on end up mostly-empty. _sigh_.
 
