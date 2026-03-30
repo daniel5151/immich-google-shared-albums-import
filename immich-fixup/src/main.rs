@@ -191,7 +191,7 @@ fn run_fix_metadata(
 
             // Handle Tags
             if let Some(shared_by) = &row.shared_by {
-                let new_tag = format!("Uploaded by: {}", shared_by);
+                let new_tag = format!("SharedBy/{}", shared_by);
                 let old_tags = asset
                     .get("tags")
                     .and_then(|v| v.as_array())
@@ -267,7 +267,7 @@ fn run_fix_metadata(
                 println!("[{}] matched - No metadata changes needed.", row.filename);
             }
         } else {
-            println!(
+            eprintln!(
                 "\n[Warning] No matching asset found for CSV row: {} (Size: {})",
                 row.filename, row.size
             );

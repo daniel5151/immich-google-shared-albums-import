@@ -1,5 +1,16 @@
 # importing google photos shared albums (with ur friend's photos) into immich
 
+> You might just want to use https://github.com/warreth/gPhotos2Immich
+>
+> I didn't realize this existed, and fell down a rabbit-hole myself. I've never
+> used it, but it seems more polished than this jank collection of scripts I've
+> come up with.
+>
+> That said - it is clearly missing some features I care deeply about (i.e:
+> preserving who originally uploaded imported photos), so you may want to
+> consider slop-coding some extensions to that tool if you are about this sort
+> of stuff.
+
 In 2026, I decided it was high time to move off Google Photos, and migrate over to a self-hosted [Immich](https://immich.app/) instance.
 
 The "traditional" way to do this is to kick off a [Google Takeout](https://takeout.google.com/) request + import the resulting data via [`immich-go`](https://github.com/simulot/immich-go). This works great, with one big "but": Google Takeout does _not_ include any photos your friends have shared with you!
@@ -7,7 +18,7 @@ The "traditional" way to do this is to kick off a [Google Takeout](https://takeo
 Ok, fine, whatever. So then, I went and tried to manually plug this gap by downloading each shared album from Google Photos and importing the resulting zips into Immich. Again, this "works", but with quite a few caveats:
 
 1. The date/time data for shared photos is all mangled / incorrect for whatever reason (e.g: timezones are set to UTC??)
-2. You lose all context on which of your friends uploaded which photos (sad!)
+2. You lose all context on which of your friends uploaded which photos :sob:
 3. When those zipped manual download archives are then uploaded via `immich-go` (via the `from-folder` import mode), live photos aren't properly joined.
 
 The end result is an album that's "imported", but not particularly pleasant to interact with.
@@ -22,7 +33,7 @@ The end result is Immich albums that are
 
 - Sorted in the right order as your Google albums
 - Properly handle live photos
-- Are tagged with "Uploaded by: {name}"
+- Are tagged with "SharedBy/{name}"
 
 > [!WARNING]
 > This is all unreviewed, unscrutinized, 100% free-range LLM generated slop. These scripts worked for me, but obviously, your mileage will vary.
@@ -117,3 +128,21 @@ cargo run --release -- \
 ```
 
 If all goes well - congrats! Your Immich albums will look _identical_ when put side-by-side to your Google Photos shared albums, and you can finally stop paying Google for hosting all your photos 🥰
+
+### (Bonus) Step 4: Cleanup hi-res/lo-res dupes post-import
+
+- Before uploading my Google Photos, I actually sync'd all the photos from my personal phone to Immich.
+- Unless you opt, Google Photos will opt you in to "Data Saver" mode, where it'll compress your photos.
+
+As a result - once I imported my Google Takeout Photos, I noticed that I had a _lot_ of hi-res/lo-res dupes in my timeline!
+
+So I slapped together another script `stack-fixup.py`, that you can use as follows:
+
+1. Use `immich-go stack` to turn the dupes into actual stacks
+2. Run `stack-fixup.py --server "http://your-immich-server:2283" --api-key "YOUR_IMMICH_API_KEY" [--dry-run] [--date YYYY-MM-DD]`
+
+My script will:
+
+- Figure out which image in the stack has the fixed up metadata (i.e: the album its in, proper tags, etc...)
+- Apply the tags and album association to the hi-res original
+- delete the lo-res original
